@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback Hub</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; color: #1f2933; }
+  h1 { margin-bottom: 4px; }
+  section { border: 1px solid #d5dbe1; border-radius: 8px; padding: 16px; margin: 16px 0; }
+  label { display: block; margin-top: 10px; font-weight: 600; font-size: 14px; }
+  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; font: inherit; }
+  button { margin-top: 12px; padding: 8px 16px; cursor: pointer; font: inherit; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 160px; }
+  .item { border-top: 1px solid #e5e9ed; padding: 10px 0; }
+  .meta { font-size: 13px; color: #52606d; }
+  .error { color: #b42318; margin-top: 8px; font-size: 14px; }
+  .ok { color: #05603a; margin-top: 8px; font-size: 14px; }
+  .stats span { display: inline-block; margin-right: 18px; }
+</style>
+</head>
+<body>
+<h1>Feedback Hub</h1>
+<p class="meta">Submit feedback, browse and filter it, and see a live summary.</p>
+
+<section>
+  <h2>Submit feedback</h2>
+  <div class="row">
+    <div><label for="name">Name</label><input id="name" maxlength="100"></div>
+    <div><label for="email">Email</label><input id="email" type="email" maxlength="150"></div>
+  </div>
+  <div class="row">
+    <div><label for="category">Category</label>
+      <select id="category">
+        <option>GENERAL</option><option>BUG</option><option>FEATURE</option><option>PRAISE</option>
+      </select></div>
+    <div><label for="rating">Rating</label>
+      <select id="rating">
+        <option>5</option><option>4</option><option>3</option><option>2</option><option>1</option>
+      </select></div>
+  </div>
+  <label for="message">Message</label>
+  <textarea id="message" rows="3" maxlength="2000"></textarea>
+  <button id="submitBtn">Submit</button>
+  <div id="formMsg"></div>
+</section>
+
+<section>
+  <h2>Summary</h2>
+  <div id="summary" class="stats">Loading...</div>
+</section>
+
+<section>
+  <h2>All feedback</h2>
+  <div class="row">
+    <div><label for="filterCategory">Category</label>
+      <select id="filterCategory">
+        <option value="">All</option><option>GENERAL</option><option>BUG</option><option>FEATURE</option><option>PRAISE</option>
+      </select></div>
+    <div><label for="filterRating">Minimum rating</label>
+      <select id="filterRating">
+        <option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+      </select></div>
+  </div>
+  <div id="list">Loading...</div>
+  <button id="prevBtn">Previous</button>
+  <button id="nextBtn">Next</button>
+  <span id="pageInfo" class="meta"></span>
+</section>
+
+<script>
+  const API = "/api/feedback";
+  let page = 0, totalPages = 1;
+  const $ = id => document.getElementById(id);
+
+  function el(tag, text, cls) {
+    const e = document.createElement(tag);
+    if (text !== undefined) e.textContent = text;   // textContent, so user input is never run as HTML
+    if (cls) e.className = cls;
+    return e;
+  }
+
+  async function submitFeedback() {
+    const body = {
+      name: $("name").value, email: $("email").value, category: $("category").value,
+      rating: Number($("rating").value), message: $("message").value
+    };
+    const res = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const box = $("formMsg");
+    if (res.ok) {
+      box.className = "ok"; box.textContent = "Thanks, your feedback was saved.";
+      $("name").value = ""; $("email").value = ""; $("message").value = "";
+      page = 0; refresh();
+    } else {
+      const err = await res.json();
+      const details = Object.entries(err.details || {}).map(([f, m]) => f + ": " + m).join("; ");
+      box.className = "error"; box.textContent = err.message + (details ? " (" + details + ")" : "");
+    }
+  }
+
+  async function loadList() {
+    const params = new URLSearchParams({ page: page, size: 5 });
+    if ($("filterCategory").value) params.set("category", $("filterCategory").value);
+    if ($("filterRating").value) params.set("minRating", $("filterRating").value);
+    const res = await fetch(API + "?" + params);
+    const data = await res.json();
+    totalPages = Math.max(data.totalPages, 1);
+    const list = $("list");
+    list.replaceChildren();
+    if (data.content.length === 0) list.append(el("p", "No feedback found.", "meta"));
+    data.content.forEach(f => {
+      const item = el("div", undefined, "item");
+      item.append(el("strong", f.category + " · " + "★".repeat(f.rating) + " · " + f.name));
+      item.append(el("div", f.message));
+      item.append(el("div", f.email + " · " + f.createdAt.replace("T", " ").slice(0, 16), "meta"));
+      const del = el("button", "Delete");
+      del.onclick = async () => { await fetch(API + "/" + f.id, { method: "DELETE" }); refresh(); };
+      item.append(del);
+      list.append(item);
+    });
+    $("pageInfo").textContent = "Page " + (page + 1) + " of " + totalPages;
+  }
+
+  async function loadSummary() {
+    const s = await (await fetch(API + "/summary")).json();
+    const box = $("summary");
+    box.replaceChildren();
+    box.append(el("span", "Total: " + s.totalCount));
+    box.append(el("span", "Average rating: " + s.averageRating));
+    box.append(el("span", "By category: " + Object.entries(s.countByCategory).map(([k, v]) => k + " " + v).join(", ")));
+  }
+
+  function refresh() { loadList(); loadSummary(); }
+
+  $("submitBtn").onclick = submitFeedback;
+  $("filterCategory").onchange = () => { page = 0; loadList(); };
+  $("filterRating").onchange = () => { page = 0; loadList(); };
+  $("prevBtn").onclick = () => { if (page > 0) { page--; loadList(); } };
+  $("nextBtn").onclick = () => { if (page + 1 < totalPages) { page++; loadList(); } };
+  refresh();
+</script>
+</body>
+</html>
