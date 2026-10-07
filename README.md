@@ -73,8 +73,3 @@ src/main/java/com/feedbackhub
 src/main/resources/static/index.html   web front end
 src/test/java/...                      API tests
 ```
-
-## Possible next steps
-- Authentication for the delete and update endpoints
-- Export feedback as CSV
-- Docker image for the application itself
