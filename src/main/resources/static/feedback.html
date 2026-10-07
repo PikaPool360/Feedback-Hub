@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Feedback | Feedback Hub</title>
+<style>
+  :root { color-scheme: dark; --bg: #090d18; --panel: #111827; --line: #263247; --text: #edf2ff; --muted: #9aa8bf; --accent: #8b9cff; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 56px 22px 72px; color: var(--text); background: radial-gradient(ellipse at 50% -20%, #25234c 0, var(--bg) 58%); min-height: 100vh; }
+  h1 { margin: 0; font-size: clamp(2.3rem, 7vw, 4rem); letter-spacing: -.055em; line-height: 1.05; }
+  body > p { margin: 16px 0 26px; }
+  a { color: #bac4ff; text-decoration: none; font-weight: 650; } a:hover { color: white; text-decoration: underline; }
+  section { border: 1px solid var(--line); border-radius: 18px; padding: 24px; margin: 18px 0; background: linear-gradient(145deg, rgba(19,28,45,.96), rgba(15,21,35,.96)); box-shadow: 0 18px 50px rgba(0,0,0,.18); }
+  label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; color: #c6d0e2; }
+  select { width: 100%; padding: 12px 13px; margin-top: 7px; border: 1px solid #34415a; border-radius: 10px; color: var(--text); background: #0c1322; font: inherit; outline: none; }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,156,255,.16); }
+  button { margin-top: 16px; padding: 9px 15px; border: 1px solid #394660; border-radius: 9px; color: #dce4f5; background: #1b263b; font: inherit; font-weight: 600; cursor: pointer; transition: .18s; }
+  button:hover { border-color: var(--accent); background: #283451; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 200px; }
+  .item { padding: 18px 2px; border-bottom: 1px solid var(--line); line-height: 1.6; }
+  .item:first-child { margin-top: 12px; border-top: 1px solid var(--line); }
+  .item strong { display: block; margin-bottom: 5px; color: #d4d9ff; }
+  .item .meta { margin-top: 5px; }
+  .meta { font-size: 14px; color: var(--muted); }
+  #pageInfo { margin-left: 12px; }
+  @media (max-width: 560px) { body { padding: 36px 16px 52px; } section { padding: 19px; border-radius: 15px; } }
+</style>
+</head>
+<body>
+<h1>All feedback</h1>
+<p class="meta"><a href="/">Back to Feedback Hub</a></p>
+<section>
+  <div class="row">
+    <div><label for="filterCategory">Category</label>
+      <select id="filterCategory"><option value="">All</option><option>GENERAL</option><option>BUG</option><option>FEATURE</option><option>PRAISE</option></select></div>
+    <div><label for="filterRating">Minimum rating</label>
+      <select id="filterRating"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+  </div>
+  <div id="list">Loading...</div>
+  <button id="prevBtn">Previous</button><button id="nextBtn">Next</button>
+  <span id="pageInfo" class="meta"></span>
+</section>
+<script>
+  const API = "/api/feedback";
+  let page = 0, totalPages = 1;
+  const $ = id => document.getElementById(id);
+  function el(tag, text, cls) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
+  async function loadList() {
+    const params = new URLSearchParams({ page: page, size: 5 });
+    if ($("filterCategory").value) params.set("category", $("filterCategory").value);
+    if ($("filterRating").value) params.set("minRating", $("filterRating").value);
+    const res = await fetch(API + "?" + params);
+    const data = await res.json();
+    totalPages = Math.max(data.totalPages, 1);
+    const list = $("list"); list.replaceChildren();
+    if (data.content.length === 0) list.append(el("p", "No feedback found.", "meta"));
+    data.content.forEach(f => {
+      const item = el("div", undefined, "item");
+      item.append(el("strong", f.category + " · " + "★".repeat(f.rating) + " · " + f.name));
+      item.append(el("div", f.message));
+      item.append(el("div", f.email + " · " + f.createdAt.replace("T", " ").slice(0, 16), "meta"));
+      const del = el("button", "Delete");
+      del.onclick = async () => { await fetch(API + "/" + f.id, { method: "DELETE" }); loadList(); };
+      item.append(del); list.append(item);
+    });
+    $("pageInfo").textContent = "Page " + (page + 1) + " of " + totalPages;
+  }
+  $("filterCategory").onchange = () => { page = 0; loadList(); };
+  $("filterRating").onchange = () => { page = 0; loadList(); };
+  $("prevBtn").onclick = () => { if (page > 0) { page--; loadList(); } };
+  $("nextBtn").onclick = () => { if (page + 1 < totalPages) { page++; loadList(); } };
+  loadList();
+</script>
+</body>
+</html>
