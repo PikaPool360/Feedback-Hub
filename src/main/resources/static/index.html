@@ -1,77 +1,294 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Feedback Hub</title>
-<style>
-  :root { color-scheme: dark; --bg: #090d18; --panel: #111827; --line: #263247; --text: #edf2ff; --muted: #9aa8bf; --accent: #8b9cff; --accent2: #b39aff; }
-  * { box-sizing: border-box; }
-  body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 56px 22px 72px; color: var(--text); background: radial-gradient(ellipse at 50% -20%, #25234c 0, var(--bg) 58%); min-height: 100vh; }
-  h1 { margin: 0; font-size: clamp(2.3rem, 7vw, 4rem); letter-spacing: -.055em; line-height: 1.05; }
-  h2 { margin: 0 0 20px; font-size: 1.25rem; letter-spacing: -.02em; }
-  body > p { margin: 12px 0 18px; }
-  nav { margin: 22px 0 28px; }
-  a { color: #bac4ff; text-decoration: none; font-weight: 650; }
-  a:hover { color: white; text-decoration: underline; }
-  section { border: 1px solid var(--line); border-radius: 18px; padding: 24px; margin: 18px 0; background: linear-gradient(145deg, rgba(19,28,45,.96), rgba(15,21,35,.96)); box-shadow: 0 18px 50px rgba(0,0,0,.18); }
-  label { display: block; margin-top: 14px; font-weight: 600; font-size: 13px; color: #c6d0e2; }
-  input, select, textarea { width: 100%; padding: 12px 13px; margin-top: 7px; border: 1px solid #34415a; border-radius: 10px; color: var(--text); background: #0c1322; font: inherit; outline: none; transition: border-color .18s, box-shadow .18s; }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,156,255,.16); }
-  textarea { resize: vertical; }
-  button { margin-top: 18px; padding: 10px 17px; border: 0; border-radius: 10px; color: #101426; background: linear-gradient(135deg, #aeb8ff, #c1a5ff); font: inherit; font-weight: 700; cursor: pointer; transition: transform .18s, filter .18s; }
-  button:hover { transform: translateY(-1px); filter: brightness(1.08); }
-  .row { display: flex; gap: 16px; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 200px; }
-  .meta { font-size: 14px; color: var(--muted); }
-  .error, .ok { margin-top: 12px; font-size: 14px; }
-  .error { color: #ff9caa; } .ok { color: #8be0ba; }
-  .stats { display: flex; gap: 12px; flex-wrap: wrap; }
-  .stats span { flex: 1; min-width: 170px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; color: #dce4f5; background: rgba(8,13,24,.55); }
-  @media (max-width: 560px) { body { padding: 36px 16px 52px; } section { padding: 19px; border-radius: 15px; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#21050f">
+  <title>Feedback Hub · Overview</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #16040a;
+      --bg2: #290911;
+      --wine: #5c162b;
+      --wine2: #7f203e;
+      --text: #fff8fa;
+      --muted: #d1aeb8;
+      --dim: #99747f;
+      --line: rgba(255,255,255,.12);
+      --glass: rgba(18,7,13,.58);
+      --accent: #ff5b9f;
+      --accent2: #ff90c0;
+      --good: #b9f3d9;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 73% 28%, rgba(255, 91, 159, .18), transparent 22%),
+        radial-gradient(circle at 14% 70%, rgba(138, 35, 68, .28), transparent 30%),
+        radial-gradient(circle at 50% -10%, rgba(255,255,255,.055), transparent 34%),
+        linear-gradient(135deg, #130309 0%, #2a0713 45%, #4c1022 100%);
+      font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(8,1,5,.08), rgba(8,1,5,.32));
+      z-index: -2;
+    }
+    .orb, .shape { position: fixed; pointer-events:none; z-index:-1; filter: blur(16px); opacity:.42; }
+    .orb { width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(255,116,164,.18), transparent 66%); right: -140px; top: 90px; }
+    .shape { width: 220px; height: 650px; border-radius: 50%; background: linear-gradient(180deg, rgba(255,137,186,.12), rgba(255,46,116,.02)); left: 40%; top: -120px; transform: rotate(29deg); }
+
+    .shell { width: min(1180px, calc(100% - 54px)); margin: 0 auto; }
+    .topbar {
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 5;
+    }
+    .brand { display:flex; align-items:center; gap:10px; color:var(--text); text-decoration:none; font-weight:800; letter-spacing:-.03em; }
+    .brand-mark {
+      width: 25px; height: 25px; display:grid; place-items:center; border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.25); background:linear-gradient(145deg,#fff,#ff6aa7 75%); color:#25050f; font-size:13px; font-weight:950;
+    }
+    .brand-name { font-size: 14px; }
+    .nav { display:flex; align-items:center; gap:28px; }
+    .nav a { color: rgba(255,255,255,.72); text-decoration:none; font-size:11px; transition:color .2s ease; }
+    .nav a:hover, .nav a.active { color:#fff; }
+
+    main { min-height: calc(100vh - 78px); }
+    .hero { min-height: calc(100vh - 78px); display:grid; grid-template-columns:minmax(0,1.05fr) minmax(310px,.78fr); align-items:center; gap:48px; position:relative; padding:30px 0 64px; }
+    .hero::after {
+      content:""; position:absolute; width:320px; height:320px; right:21%; top:17%; border-radius:50%;
+      background: radial-gradient(circle, rgba(255,103,159,.16), transparent 68%); filter: blur(5px); pointer-events:none;
+    }
+    .hero-copy { position:relative; z-index:2; max-width:650px; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:8px; padding:7px 11px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12); border-radius:999px; color:rgba(255,255,255,.76); font-size:10px; letter-spacing:.06em;
+    }
+    .eyebrow::before { content:""; width:5px; height:5px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent); }
+    h1 { font-size:clamp(3.3rem,7vw,6.2rem); line-height:.93; letter-spacing:-.065em; margin:22px 0 19px; max-width:720px; }
+    .intro { color:rgba(255,243,247,.7); max-width:580px; font-size:13px; line-height:1.7; margin:0; }
+    .actions { display:flex; gap:10px; align-items:center; margin-top:25px; flex-wrap:wrap; }
+    .btn { min-height:40px; padding:0 15px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:11px; font-weight:800; cursor:pointer; border:1px solid transparent; }
+    .btn-primary { color:#2b0711; background:#fff; }
+    .btn:hover { transform:translateY(-1px); }
+
+    .hero-art { position:relative; min-height:540px; display:flex; align-items:center; justify-content:center; }
+    .backlight { position:absolute; width:450px; height:450px; border-radius:50%; background:radial-gradient(circle, rgba(255,113,170,.26), rgba(255,113,170,0) 68%); filter:blur(4px); }
+    .poster {
+      width:min(520px, 100%); height:560px; border-radius:28px; position:relative; overflow:hidden;
+      border:1px solid rgba(255,255,255,.10); background:
+        linear-gradient(155deg, rgba(255,255,255,.11), transparent 23%),
+        radial-gradient(circle at 65% 21%, rgba(255,203,222,.28), transparent 13%),
+        linear-gradient(135deg,#21060f 0%, #5a162b 52%, #2a0712 100%);
+      box-shadow:0 35px 100px rgba(0,0,0,.42);
+      transform: rotate(1.5deg);
+    }
+    .poster::before {
+      content:""; position:absolute; width:300px; height:480px; border-radius:54% 46% 60% 40% / 34% 48% 52% 66%;
+      background:linear-gradient(150deg, rgba(255,255,255,.13), rgba(255,255,255,.025)); left: 28%; top: 11%; transform:rotate(13deg);
+      filter:blur(1px);
+    }
+    .poster::after {
+      content:""; position:absolute; width:520px; height:520px; right:-250px; bottom:-250px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.13), transparent 62%);
+    }
+    .poster-label { position:absolute; left:24px; top:24px; font-size:9px; text-transform:uppercase; letter-spacing:.18em; color:rgba(255,255,255,.5); }
+    .poster-word { position:absolute; left:24px; bottom:26px; font-size:58px; line-height:.84; font-weight:900; letter-spacing:-.07em; max-width:250px; }
+    .poster-word span { color:rgba(255,255,255,.36); }
+    .feature-list { position:relative; z-index:2; margin-top:18px; }
+    .feature-list h2 { margin:0 0 14px; font-size:10px; text-transform:uppercase; letter-spacing:.2em; color:rgba(255,255,255,.44); }
+    .feature-row { display:flex; align-items:center; gap:11px; color:rgba(255,255,255,.34); padding:7px 0; font-size:17px; letter-spacing:-.03em; }
+    .feature-row.active { color:#fff; }
+    .feature-row .dot { width:7px; height:7px; border-radius:50%; background:transparent; border:1px solid rgba(255,255,255,.16); }
+    .feature-row.active .dot { background:var(--accent); border-color:var(--accent); box-shadow:0 0 14px rgba(255,91,159,.6); }
+
+    .bottom-strip { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:10px 0 0; opacity:.65; font-size:9px; text-transform:uppercase; letter-spacing:.12em; }
+    .bottom-strip strong { color:#fff; font-weight:700; }
+
+
+    .feedback-section { padding: 90px 0 90px; }
+    .section-kicker { color:#f0afc6; text-transform:uppercase; letter-spacing:.18em; font-size:9px; font-weight:800; }
+    .section-title { margin:10px 0 8px; font-size:clamp(2.4rem,5vw,4.2rem); line-height:.94; letter-spacing:-.06em; }
+    .section-intro { max-width:600px; margin:0; color:rgba(255,243,247,.62); font-size:13px; }
+    .feedback-grid { display:grid; grid-template-columns:minmax(0,1.24fr) minmax(280px,.76fr); gap:16px; margin-top:30px; }
+    .glass-panel { border:1px solid var(--line); border-radius:18px; background:rgba(12,3,8,.64); backdrop-filter:blur(16px); box-shadow:0 25px 80px rgba(0,0,0,.22); }
+    .panel-pad { padding:24px; }
+    .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:16px; }
+    .panel-step { color:#ffadc9; font-size:9px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    .panel-title { margin:5px 0 0; font-size:19px; letter-spacing:-.03em; }
+    .panel-copy { color:var(--muted); font-size:11px; margin:4px 0 0; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 13px; }
+    .feedback-section label { display:block; margin:12px 0 6px; color:rgba(255,255,255,.58); font-size:9px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+    .feedback-section input,.feedback-section select,.feedback-section textarea { width:100%; padding:11px 12px; border:1px solid rgba(255,255,255,.12); border-radius:9px; color:var(--text); background:rgba(4,1,3,.5); font:inherit; outline:none; transition:border-color .16s,box-shadow .16s; }
+    .feedback-section input:focus,.feedback-section select:focus,.feedback-section textarea:focus { border-color:#ff82b7; box-shadow:0 0 0 3px rgba(255,91,159,.11); }
+    .feedback-section textarea { resize:vertical; min-height:120px; }
+    .field-hint { margin:6px 0 0; font-size:9px; color:var(--dim); text-align:right; }
+    .form-actions { display:flex; align-items:center; gap:12px; margin-top:14px; }
+    .submit-btn { border:0; }
+    .form-msg { min-height:20px; font-size:11px; color:var(--dim); }
+    .form-msg.ok { color:var(--good); }
+    .form-msg.error { color:#ffadbb; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .stat { padding:14px; border:1px solid rgba(255,255,255,.10); border-radius:12px; background:rgba(3,1,3,.3); }
+    .stat-label { color:var(--dim); font-size:8px; text-transform:uppercase; letter-spacing:.13em; font-weight:800; }
+    .stat-value { margin-top:4px; font-size:25px; line-height:1.1; font-weight:800; letter-spacing:-.04em; }
+    .category-title { margin:20px 0 9px; color:rgba(255,255,255,.55); font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .categories { display:grid; gap:9px; }
+    .category-row { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:11px; }
+    .category-row strong { color:#fff; font-weight:700; }
+    .side-footer { margin:17px 0 0; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); color:var(--dim); font-size:10px; }
+    .side-footer a { color:#ffb2d0; text-decoration:none; }
+    @media(max-width:760px) { .feedback-grid { grid-template-columns:1fr; } }
+    @media(max-width:520px) { .form-grid { grid-template-columns:1fr; } .panel-pad { padding:19px; } }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns:1fr; padding-top:50px; }
+      .hero-art { min-height:460px; order:-1; }
+      .poster { height:430px; max-width:420px; }
+      .feature-list { margin-top:0; }
+      h1 { max-width:700px; }
+    }
+    @media (max-width: 560px) {
+      .shell { width:min(100% - 28px, 1180px); }
+      .topbar { height:68px; }
+      .hero { padding-top:34px; gap:30px; }
+      .hero-art { min-height:360px; }
+      .poster { height:350px; }
+      .poster-word { font-size:45px; }
+      .feature-row { font-size:15px; }
+      .bottom-strip { gap:10px; flex-wrap:wrap; }
+    }
+  </style>
 </head>
 <body>
-<h1>Feedback Hub</h1>
-<p class="meta">Submit feedback and see a live summary.</p>
-<nav><a href="/feedback.html">Browse all feedback</a></nav>
+  <div class="orb"></div><div class="shape"></div>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Feedback Hub home"><span class="brand-mark">F</span><span class="brand-name">Feedback Hub</span></a>
+      <nav class="nav" aria-label="Main navigation">
+        <a class="active" href="/">Overview</a>
+        <a href="/feedback.html">Feedback inbox</a>
+      </nav>
+    </header>
 
-<section>
-  <h2>Submit feedback</h2>
-  <div class="row">
-    <div><label for="name">Name</label><input id="name" maxlength="100"></div>
-    <div><label for="email">Email</label><input id="email" type="email" maxlength="150"></div>
-  </div>
-  <div class="row">
-    <div><label for="category">Category</label><select id="category"><option>GENERAL</option><option>BUG</option><option>FEATURE</option><option>PRAISE</option></select></div>
-    <div><label for="rating">Rating</label><select id="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
-  </div>
-  <label for="message">Message</label>
-  <textarea id="message" rows="3" maxlength="2000"></textarea>
-  <button id="submitBtn">Submit</button><div id="formMsg"></div>
-</section>
+    <main>
+      <section class="hero" id="feedback">
+        <div class="hero-copy">
+          <div class="eyebrow">A smarter feedback loop · Built for real teams</div>
+          <h1>Listen.<br>Learn.<br>Improve.</h1>
+          <p class="intro">Capture what people think, understand the patterns behind every response, and turn useful feedback into your next meaningful change.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#send">Send feedback <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="feature-list" id="how">
+            <h2>Designed around the feedback journey</h2>
+            <div class="feature-row active"><span class="dot"></span>Collect written feedback</div>
+            <div class="feature-row"><span class="dot"></span>Filter by topic and rating</div>
+            <div class="feature-row"><span class="dot"></span>Review response patterns</div>
+          </div>
+        </div>
 
-<section><h2>Summary</h2><div id="summary" class="stats">Loading...</div></section>
-<script>
-  const API = "/api/feedback";
-  const $ = id => document.getElementById(id);
-  function el(tag, text) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; return e; }
-  async function loadSummary() {
-    const s = await (await fetch(API + "/summary")).json();
-    const box = $("summary"); box.replaceChildren();
-    box.append(el("span", "Total: " + s.totalCount));
-    box.append(el("span", "Average rating: " + s.averageRating));
-    box.append(el("span", "By category: " + Object.entries(s.countByCategory).map(([k, v]) => k + " " + v).join(", ")));
-  }
-  async function submitFeedback() {
-    const body = { name: $("name").value, email: $("email").value, category: $("category").value, rating: Number($("rating").value), message: $("message").value };
-    const res = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const box = $("formMsg");
-    if (res.ok) { box.className = "ok"; box.textContent = "Thanks, your feedback was saved."; $("name").value = ""; $("email").value = ""; $("message").value = ""; loadSummary(); }
-    else { const err = await res.json(); const details = Object.entries(err.details || {}).map(([f, m]) => f + ": " + m).join("; "); box.className = "error"; box.textContent = err.message + (details ? " (" + details + ")" : ""); }
-  }
-  $("submitBtn").onclick = submitFeedback;
-  loadSummary();
-</script>
+        <div class="hero-art" aria-hidden="true">
+          <div class="backlight"></div>
+          <div class="poster">
+            <div class="poster-label">Feedback / 01</div>
+            <div class="poster-word">MAKE<br><span>THE NEXT</span><br>MOVE.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-strip">
+        <span>Collect <strong>responses</strong></span>
+        <span>Compare <strong>ratings</strong></span>
+        <span>Explore <strong>topics</strong></span>
+      </div>
+
+      <section class="feedback-section" id="send" aria-labelledby="sendTitle">
+        <div class="section-kicker">Share your thoughts</div>
+        <h2 class="section-title" id="sendTitle">Make the next change count.</h2>
+        <p class="section-intro">A little context helps turn feedback into something the team can actually act on.</p>
+
+        <div class="feedback-grid">
+          <section class="glass-panel" aria-labelledby="formTitle">
+            <div class="panel-pad">
+              <div class="panel-head"><div><div class="panel-step">Share your thoughts</div><h3 class="panel-title" id="formTitle">Tell us what happened</h3><p class="panel-copy">What worked, what did not, and what would make it better?</p></div></div>
+              <form id="feedbackForm">
+                <div class="form-grid">
+                  <div><label for="name">Your name</label><input id="name" name="name" autocomplete="name" maxlength="100" placeholder="Alex Morgan" required></div>
+                  <div><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" maxlength="150" placeholder="alex@example.com" required></div>
+                  <div><label for="category">What is this about?</label><select id="category" name="category"><option value="GENERAL">General</option><option value="BUG">A problem</option><option value="FEATURE">An idea</option><option value="PRAISE">Something great</option></select></div>
+                  <div><label for="rating">How was your experience?</label><select id="rating" name="rating"><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Okay</option><option value="2">2 - Poor</option><option value="1">1 - Very poor</option></select></div>
+                </div>
+                <label for="message">Tell us more</label>
+                <textarea id="message" name="message" rows="4" maxlength="2000" placeholder="What happened, and what would make it better?" required></textarea>
+                <p class="field-hint"><span id="charCount">0</span> / 2000</p>
+                <div class="form-actions"><button class="btn btn-primary submit-btn" id="submitBtn" type="submit">Send feedback <span aria-hidden="true">→</span></button><div id="formMsg" class="form-msg" role="status" aria-live="polite"></div></div>
+              </form>
+            </div>
+          </section>
+
+          <aside class="glass-panel" aria-labelledby="pulseTitle">
+            <div class="panel-pad">
+              <div class="panel-head"><div><div class="panel-step">Live summary</div><h3 class="panel-title" id="pulseTitle">Feedback pulse</h3><p class="panel-copy">A snapshot of the responses received so far.</p></div></div>
+              <div id="summary" class="stats" aria-live="polite"><div class="stat"><div class="stat-label">Responses</div><div class="stat-value">—</div></div><div class="stat"><div class="stat-label">Avg. rating</div><div class="stat-value">—</div></div></div>
+              <div class="category-title">Responses by topic</div>
+              <div id="categories" class="categories"><div class="category-row">Loading summary…</div></div>
+              <div class="side-footer">Want the full story? <a href="/feedback.html">Open the feedback inbox →</a></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API = "/api/feedback";
+    const $ = id => document.getElementById(id);
+    const categoryNames = { GENERAL:"General", BUG:"Problems", FEATURE:"Ideas", PRAISE:"Praise" };
+    async function loadSummary() {
+      try {
+        const res = await fetch(API + "/summary"); if (!res.ok) throw new Error("Summary unavailable");
+        const s = await res.json(); const stats = $("summary"); stats.replaceChildren();
+        [["Responses", s.totalCount], ["Avg. rating", Number(s.averageRating || 0).toFixed(1) + " / 5"]].forEach(([label,value]) => {
+          const card = document.createElement("div"); card.className="stat";
+          const title=document.createElement("div"); title.className="stat-label"; title.textContent=label;
+          const number=document.createElement("div"); number.className="stat-value"; number.textContent=value;
+          card.append(title,number); stats.append(card);
+        });
+        const categories=$("categories"); categories.replaceChildren();
+        Object.entries(categoryNames).forEach(([key,label]) => {
+          const row=document.createElement("div"); row.className="category-row";
+          const name=document.createElement("span"); name.textContent=label;
+          const count=document.createElement("strong"); count.textContent=(s.countByCategory || {})[key] || 0;
+          row.append(name,count); categories.append(row);
+        });
+      } catch { $("categories").textContent="Could not load the summary. Refresh to try again."; }
+    }
+    $("message").addEventListener("input", () => { $("charCount").textContent=$("message").value.length; });
+    $("feedbackForm").addEventListener("submit", async event => {
+      event.preventDefault(); const button=$("submitBtn"), box=$("formMsg"); button.disabled=true; box.className="form-msg"; box.textContent="Sending…";
+      const body={name:$("name").value.trim(),email:$("email").value.trim(),category:$("category").value,rating:Number($("rating").value),message:$("message").value.trim()};
+      try {
+        const res=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+        if (!res.ok) { const err=await res.json(); const details=Object.entries(err.details || {}).map(([f,m])=>f+": "+m).join("; "); throw new Error(err.message+(details?" — "+details:"")); }
+        event.target.reset(); $("charCount").textContent="0"; box.className="form-msg ok"; box.textContent="Thanks — your feedback has been received."; loadSummary();
+      } catch(error) { box.className="form-msg error"; box.textContent=error.message || "Could not send feedback. Please try again."; }
+      finally { button.disabled=false; }
+    });
+    loadSummary();
+  </script>
 </body>
 </html>

@@ -1,77 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>All Feedback | Feedback Hub</title>
-<style>
-  :root { color-scheme: dark; --bg: #090d18; --panel: #111827; --line: #263247; --text: #edf2ff; --muted: #9aa8bf; --accent: #8b9cff; }
-  * { box-sizing: border-box; }
-  body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 56px 22px 72px; color: var(--text); background: radial-gradient(ellipse at 50% -20%, #25234c 0, var(--bg) 58%); min-height: 100vh; }
-  h1 { margin: 0; font-size: clamp(2.3rem, 7vw, 4rem); letter-spacing: -.055em; line-height: 1.05; }
-  body > p { margin: 16px 0 26px; }
-  a { color: #bac4ff; text-decoration: none; font-weight: 650; } a:hover { color: white; text-decoration: underline; }
-  section { border: 1px solid var(--line); border-radius: 18px; padding: 24px; margin: 18px 0; background: linear-gradient(145deg, rgba(19,28,45,.96), rgba(15,21,35,.96)); box-shadow: 0 18px 50px rgba(0,0,0,.18); }
-  label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; color: #c6d0e2; }
-  select { width: 100%; padding: 12px 13px; margin-top: 7px; border: 1px solid #34415a; border-radius: 10px; color: var(--text); background: #0c1322; font: inherit; outline: none; }
-  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,156,255,.16); }
-  button { margin-top: 16px; padding: 9px 15px; border: 1px solid #394660; border-radius: 9px; color: #dce4f5; background: #1b263b; font: inherit; font-weight: 600; cursor: pointer; transition: .18s; }
-  button:hover { border-color: var(--accent); background: #283451; }
-  .row { display: flex; gap: 16px; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 200px; }
-  .item { padding: 18px 2px; border-bottom: 1px solid var(--line); line-height: 1.6; }
-  .item:first-child { margin-top: 12px; border-top: 1px solid var(--line); }
-  .item strong { display: block; margin-bottom: 5px; color: #d4d9ff; }
-  .item .meta { margin-top: 5px; }
-  .meta { font-size: 14px; color: var(--muted); }
-  #pageInfo { margin-left: 12px; }
-  @media (max-width: 560px) { body { padding: 36px 16px 52px; } section { padding: 19px; border-radius: 15px; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#21050f">
+  <title>Feedback Hub · Inbox</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #16040a;
+      --wine: #2a0813;
+      --wine2: #5b162b;
+      --text: #fff8fa;
+      --muted: #d1aeb8;
+      --dim: #9a7780;
+      --line: rgba(255,255,255,.12);
+      --card: rgba(24,8,15,.72);
+      --accent: #ff5b9f;
+      --lav: #ffb9d7;
+      --rose: #ff93ae;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100vh; color:var(--text);
+      background:
+        radial-gradient(circle at 84% 9%, rgba(255,91,159,.17), transparent 24%),
+        radial-gradient(circle at 16% 80%, rgba(139,37,71,.26), transparent 28%),
+        linear-gradient(135deg,#120308 0%,#280812 50%,#4c1123 100%);
+      font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      overflow-x:hidden;
+    }
+    .shell { width:min(1180px, calc(100% - 54px)); margin:auto; }
+    .topbar { height:78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:10px; color:var(--text); text-decoration:none; font-weight:800; letter-spacing:-.03em; }
+    .brand-mark { width:25px; height:25px; display:grid; place-items:center; border-radius:7px; color:#25050f; background:linear-gradient(145deg,#fff,#ff6aa7 75%); font-size:13px; font-weight:950; }
+    .brand-name { font-size:14px; }
+    .nav { display:flex; gap:28px; }
+    .nav a { color:rgba(255,255,255,.66); text-decoration:none; font-size:11px; }
+    .nav a:hover,.nav a.active { color:#fff; }
+
+    main { padding:56px 0 80px; }
+    .hero-head { display:flex; align-items:end; justify-content:space-between; gap:30px; margin-bottom:32px; }
+    .eyebrow { color:#f3bdcf; text-transform:uppercase; letter-spacing:.18em; font-size:9px; font-weight:800; }
+    h1 { margin:11px 0 8px; font-size:clamp(3rem,6vw,5rem); line-height:.92; letter-spacing:-.065em; }
+    .intro { max-width:650px; margin:0; color:rgba(255,243,247,.66); font-size:13px; }
+
+    .toolbar {
+      margin-top:22px; padding:17px 18px; border:1px solid var(--line); border-radius:15px;
+      background:rgba(20,5,11,.58); backdrop-filter:blur(13px); display:flex; align-items:end; justify-content:space-between; gap:20px;
+    }
+    .filters { display:flex; gap:13px; flex:1; }
+    .filter { width:min(220px,50%); }
+    label { display:block; margin-bottom:7px; color:rgba(255,255,255,.52); font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    select { width:100%; padding:10px 11px; border:1px solid rgba(255,255,255,.12); border-radius:8px; color:#fff; background:rgba(5,1,4,.42); font:inherit; outline:none; }
+    select:focus { border-color:#ff82b9; box-shadow:0 0 0 3px rgba(255,91,159,.12); }
+    .result-count { color:var(--dim); font-size:11px; white-space:nowrap; padding-bottom:9px; }
+    .result-count strong { color:#fff; }
+
+    .list-panel { margin-top:16px; overflow:hidden; border:1px solid var(--line); border-radius:17px; background:rgba(15,4,9,.68); backdrop-filter:blur(16px); box-shadow:0 24px 80px rgba(0,0,0,.22); }
+    .list-head { display:flex; justify-content:space-between; align-items:center; padding:18px 21px; border-bottom:1px solid var(--line); }
+    .list-head h2 { margin:0; font-size:14px; letter-spacing:-.02em; }
+    .list-hint { color:var(--dim); font-size:10px; }
+    #list { padding:0 22px; }
+    .item { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:18px; padding:22px 0; border-bottom:1px solid rgba(255,255,255,.075); }
+    .item:last-child { border-bottom:0; }
+    .item-title { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin-bottom:8px; }
+    .item-title strong { font-size:14px; letter-spacing:-.02em; }
+    .badge { display:inline-flex; align-items:center; padding:3px 8px; border:1px solid rgba(255,143,196,.36); border-radius:99px; color:#ffb7d6; background:rgba(255,91,159,.08); font-size:9px; line-height:1.4; font-weight:800; text-transform:uppercase; letter-spacing:.07em; }
+    .stars { color:#ffd386; font-size:12px; letter-spacing:.05em; }
+    .item-message { white-space:pre-wrap; overflow-wrap:anywhere; color:#f0dfe5; font-size:13px; max-width:790px; }
+    .item-meta { margin-top:9px; color:var(--dim); font-size:10px; }
+    .delete { align-self:start; padding:7px 10px; border:1px solid rgba(255,107,132,.24); border-radius:8px; color:#ffc0cb; background:rgba(103,25,39,.28); font:inherit; font-size:10px; font-weight:800; cursor:pointer; }
+    .delete:hover { border-color:var(--rose); background:rgba(126,28,47,.44); }
+    .empty { padding:58px 20px; text-align:center; }
+    .empty-mark { display:grid; place-items:center; margin:0 auto 14px; width:44px; height:44px; border:1px solid rgba(255,255,255,.11); border-radius:13px; color:#ff9bc4; background:rgba(255,91,159,.07); font-size:18px; }
+    .empty strong { display:block; margin-bottom:5px; }
+    .empty p { margin:0; color:var(--dim); font-size:12px; }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:15px; padding:14px 20px; border-top:1px solid rgba(255,255,255,.09); }
+    .pagination[hidden] { display:none; }
+    .page-btn { min-height:35px; padding:0 13px; border:1px solid rgba(255,255,255,.13); border-radius:8px; color:#fff; background:rgba(255,255,255,.04); font:inherit; font-size:10px; font-weight:800; cursor:pointer; }
+    .page-btn:hover:not(:disabled) { border-color:rgba(255,128,180,.45); background:rgba(255,91,159,.08); }
+    .page-btn:disabled { opacity:.35; cursor:default; }
+    #pageInfo { color:var(--dim); font-size:10px; min-width:95px; text-align:center; }
+    .notice { padding:12px 15px; color:#ffb5c3; font-size:12px; }
+    @media(max-width:760px) { .toolbar { align-items:stretch; flex-direction:column; } .filters { width:100%; } .filter { flex:1; width:auto; } .result-count { padding:0; } }
+    @media(max-width:560px) { .shell { width:min(100% - 28px,1180px); } .topbar{height:68px;} .nav{gap:12px;} .nav a{font-size:10px;} .brand-name{display:none;} main{padding-top:40px;} .filters{flex-direction:column;} .filter{width:100%;} #list{padding:0 16px;} .list-head{padding:15px 16px;} .item{grid-template-columns:1fr; gap:10px;} .delete{justify-self:start;} }
+  </style>
 </head>
 <body>
-<h1>All feedback</h1>
-<p class="meta"><a href="/">Back to Feedback Hub</a></p>
-<section>
-  <div class="row">
-    <div><label for="filterCategory">Category</label>
-      <select id="filterCategory"><option value="">All</option><option>GENERAL</option><option>BUG</option><option>FEATURE</option><option>PRAISE</option></select></div>
-    <div><label for="filterRating">Minimum rating</label>
-      <select id="filterRating"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Feedback Hub home"><span class="brand-mark">F</span><span class="brand-name">Feedback Hub</span></a>
+      <nav class="nav" aria-label="Main navigation"><a href="/">Overview</a><a class="active" href="/feedback.html" aria-current="page">Feedback inbox</a></nav>
+    </header>
+
+    <main>
+      <div class="hero-head">
+        <div>
+          <div class="eyebrow">The voice of your users</div>
+          <h1>Feedback<br>inbox.</h1>
+          <p class="intro">Browse every response, spot recurring themes, and keep the conversation moving — without losing the human side of the story.</p>
+        </div>
+      </div>
+
+      <section class="toolbar" aria-label="Filter feedback">
+        <div class="filters">
+          <div class="filter"><label for="filterCategory">Topic</label><select id="filterCategory"><option value="">All topics</option><option value="GENERAL">General</option><option value="BUG">Problems</option><option value="FEATURE">Ideas</option><option value="PRAISE">Praise</option></select></div>
+          <div class="filter"><label for="filterRating">Minimum rating</label><select id="filterRating"><option value="">Any rating</option><option value="5">5 stars</option><option value="4">4+ stars</option><option value="3">3+ stars</option><option value="2">2+ stars</option><option value="1">1+ stars</option></select></div>
+        </div>
+        <div class="result-count" id="resultCount" aria-live="polite">Loading responses…</div>
+      </section>
+
+      <section class="list-panel" aria-labelledby="listTitle">
+        <div class="list-head"><h2 id="listTitle">Recent responses</h2><span class="list-hint">Newest first · 5 per page</span></div>
+        <div id="list" aria-live="polite"><div class="empty"><div class="empty-mark">…</div><strong>Loading feedback</strong><p>Gathering the latest responses.</p></div></div>
+        <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+        <div class="pagination" id="pagination" hidden><button class="page-btn" id="prevBtn" type="button">← Previous</button><span id="pageInfo">Page 1</span><button class="page-btn" id="nextBtn" type="button">Next →</button></div>
+      </section>
+    </main>
   </div>
-  <div id="list">Loading...</div>
-  <button id="prevBtn">Previous</button><button id="nextBtn">Next</button>
-  <span id="pageInfo" class="meta"></span>
-</section>
-<script>
-  const API = "/api/feedback";
-  let page = 0, totalPages = 1;
-  const $ = id => document.getElementById(id);
-  function el(tag, text, cls) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
-  async function loadList() {
-    const params = new URLSearchParams({ page: page, size: 5 });
-    if ($("filterCategory").value) params.set("category", $("filterCategory").value);
-    if ($("filterRating").value) params.set("minRating", $("filterRating").value);
-    const res = await fetch(API + "?" + params);
-    const data = await res.json();
-    totalPages = Math.max(data.totalPages, 1);
-    const list = $("list"); list.replaceChildren();
-    if (data.content.length === 0) list.append(el("p", "No feedback found.", "meta"));
-    data.content.forEach(f => {
-      const item = el("div", undefined, "item");
-      item.append(el("strong", f.category + " · " + "★".repeat(f.rating) + " · " + f.name));
-      item.append(el("div", f.message));
-      item.append(el("div", f.email + " · " + f.createdAt.replace("T", " ").slice(0, 16), "meta"));
-      const del = el("button", "Delete");
-      del.onclick = async () => { await fetch(API + "/" + f.id, { method: "DELETE" }); loadList(); };
-      item.append(del); list.append(item);
-    });
-    $("pageInfo").textContent = "Page " + (page + 1) + " of " + totalPages;
-  }
-  $("filterCategory").onchange = () => { page = 0; loadList(); };
-  $("filterRating").onchange = () => { page = 0; loadList(); };
-  $("prevBtn").onclick = () => { if (page > 0) { page--; loadList(); } };
-  $("nextBtn").onclick = () => { if (page + 1 < totalPages) { page++; loadList(); } };
-  loadList();
-</script>
+
+  <script>
+    const API="/api/feedback", $=id=>document.getElementById(id);
+    let page=0,totalPages=1,requestId=0;
+    const labels={GENERAL:"General",BUG:"Problem",FEATURE:"Idea",PRAISE:"Praise"};
+    function el(tag,text,className) { const node=document.createElement(tag); if(text!==undefined) node.textContent=text; if(className) node.className=className; return node; }
+    function showEmpty(title,description) { const box=el("div",undefined,"empty"); box.append(el("div","✳","empty-mark"),el("strong",title),el("p",description)); $("list").replaceChildren(box); }
+    async function loadList() {
+      const current=++requestId; const params=new URLSearchParams({page:String(page),size:"5",sort:"createdAt,desc"});
+      if($("filterCategory").value) params.set("category",$("filterCategory").value);
+      if($("filterRating").value) params.set("minRating",$("filterRating").value);
+      $("list").replaceChildren(); $("list").append(el("div","Loading responses…","empty")); $("notice").hidden=true;
+      try {
+        const res=await fetch(API+"?"+params); if(!res.ok) throw new Error("Could not load feedback. Please try again.");
+        const data=await res.json(); if(current!==requestId) return;
+        totalPages=Math.max(data.totalPages||0,1); const items=data.content||[]; $("list").replaceChildren();
+        const count=Number(data.totalElements||0),countLabel=el("span"); countLabel.append(el("strong",String(count)),document.createTextNode(" response"+(count===1?"":"s"))); $("resultCount").replaceChildren(countLabel);
+        if(items.length===0) showEmpty(page===0?"Nothing here yet":"No more responses","Try changing the filters to see other feedback.");
+        items.forEach(f=>{
+          const item=el("article",undefined,"item"),main=el("div"),title=el("div",undefined,"item-title");
+          title.append(el("span",labels[f.category]||f.category,"badge"),el("span","★".repeat(f.rating)+"☆".repeat(5-f.rating),"stars"),el("strong",f.name));
+          main.append(title,el("div",f.message,"item-message"),el("div",f.email+" · "+new Date(f.createdAt).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"}),"item-meta"));
+          const del=el("button","Delete","delete"); del.type="button"; del.setAttribute("aria-label","Delete feedback from "+f.name);
+          del.onclick=async()=>{ if(!window.confirm("Delete this feedback from "+f.name+"? This cannot be undone.")) return; del.disabled=true; try { const response=await fetch(API+"/"+f.id,{method:"DELETE"}); if(!response.ok) throw new Error(); if(items.length===1&&page>0) page--; loadList(); } catch { del.disabled=false; $("notice").textContent="Could not delete this response. Please try again."; $("notice").hidden=false; } };
+          item.append(main,del); $("list").append(item);
+        });
+        $("pageInfo").textContent="Page "+(page+1)+" of "+totalPages; $("prevBtn").disabled=page===0; $("nextBtn").disabled=page+1>=totalPages; $("pagination").hidden=totalPages<=1;
+      } catch(error) { if(current!==requestId) return; showEmpty("Feedback could not load",error.message); $("resultCount").textContent=""; $("pageInfo").textContent="Page "+(page+1); $("prevBtn").disabled=true; $("nextBtn").disabled=true; $("pagination").hidden=true; }
+    }
+    $("filterCategory").onchange=()=>{ page=0; loadList(); };
+    $("filterRating").onchange=()=>{ page=0; loadList(); };
+    $("prevBtn").onclick=()=>{ if(page>0){ page--; loadList(); } };
+    $("nextBtn").onclick=()=>{ if(page+1<totalPages){ page++; loadList(); } };
+    loadList();
+  </script>
 </body>
 </html>
